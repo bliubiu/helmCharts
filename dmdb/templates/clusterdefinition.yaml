@@ -1,0 +1,128 @@
+apiVersion: apps.kubeblocks.io/v1alpha1
+kind: ClusterDefinition
+metadata:
+  name: dmdb
+  labels:
+    {{- include "dmdb.labels" . | nindent 4 }}
+spec:
+  type: dmdb
+  connectionCredential:
+    username: SYSDBA
+    password: "$(RANDOM_PASSWD)"
+    endpoint: "$(SVC_FQDN):$(SVC_PORT_tcp-dmdb)"
+    host: "$(SVC_FQDN)"
+    port: "$(SVC_PORT_tcp-dmdb)"
+  componentDefs:
+    - name: dmdb
+      workloadType: Stateful
+      characterType: dmdb
+      service:
+        ports:
+          - name: tcp-dmdb
+            port: 5236
+            targetPort: tcp-dmdb
+          - name: tcp-dmap
+            port: 4236
+            targetPort: tcp-dmap
+          - name: exporter
+            port: 9161
+            targetPort: exporter
+      volumeTypes:
+        - name: data
+          type: data
+      podSpec:
+<<<<<<< HEAD
+        initContainers:
+        - name: dmdb-init-container
+          image: {{ .Values.image.registry | default "docker.io" }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ default .Values.image.pullPolicy "IfNotPresent" }}
+          command:
+            - /bin/sh
+            - -c
+            - |
+              chown -R 54321 /opt/dmdbms/data
+              chmod -R 700 /opt/dmdbms/data
+          volumeMounts:
+            - name: data
+              mountPath: /opt/dmdbms/data
+          securityContext:
+            runAsUser: 0
+=======
+>>>>>>> dmdb in kubeBlocks
+        containers:
+          - name: dmdb
+            volumeMounts:
+              - mountPath: /opt/dmdbms/data
+                name: data
+            imagePullPolicy: {{ default .Values.image.pullPolicy "IfNotPresent" }}
+<<<<<<< HEAD
+            securityContext:
+              runAsUser: 54321
+=======
+>>>>>>> dmdb in kubeBlocks
+            ports:
+              - name: tcp-dmdb
+                containerPort: 5236
+              - name: tcp-dmap
+                containerPort: 4236
+            env:
+<<<<<<< HEAD
+              - name: INSTANCE_NAME
+                value: "dm8"
+=======
+>>>>>>> dmdb in kubeBlocks
+              - name: EXTENT_SIZE
+                value: "16"
+              - name: PAGE_SIZE
+                value: "8"
+              - name: LOG_SIZE
+                value: "256"
+              - name: CASE_SENSITIVE
+                value: "1"
+              - name: UNICODE_FLAG
+                value: "0"
+              - name: LENGTH_IN_CHAR
+                value: "0"
+              - name: BLANK_PAD_MODE
+<<<<<<< HEAD
+                value: "16"
+              - name: SYSDBA_PWD
+                valueFrom:
+                  secretKeyRef:
+                    name: $(CONN_CREDENTIAL_SECRET_NAME)
+                    key: password
+            readinessProbe:
+              failureThreshold: 3
+              initialDelaySeconds: 10
+              periodSeconds: 30
+              successThreshold: 1
+              timeoutSeconds: 5
+              exec:
+                command: [ "/bin/bash", "/opt/startup.sh" ]
+=======
+                value: "1"
+>>>>>>> dmdb in kubeBlocks
+          - name: exporter
+            imagePullPolicy: {{ default .Values.image.pullPolicy "IfNotPresent" }}
+            securityContext:
+              runAsUser: 1000
+            ports:
+              - name: exporter
+                containerPort: 9161
+            env:
+<<<<<<< HEAD
+              - name: SYSDBA_PWD
+                valueFrom:
+                  secretKeyRef:
+                    name: $(CONN_CREDENTIAL_SECRET_NAME)
+                    key: password
+              - name: DATA_SOURCE_NAME
+                value: "dm://SYSDBA:$(SYSDBA_PWD)@localhost:5236?autoCommit=true"
+              - name: SERVICE_PORT
+                value: "9161"
+=======
+              - name: DATA_SOURCE_NAME
+                value: "dm://SYSDBA:SYSDBA001@localhost:5236?autoCommit=true"
+              - name: SERVICE_PORT
+                value: "9161"
+>>>>>>> dmdb in kubeBlocks
