@@ -1,0 +1,14 @@
+apiVersion: extensions.kubeblocks.io/v1alpha1
+kind: Addon
+metadata:
+  name: dm8
+spec:
+  description: 'dm8 single instance'
+  type: Helm
+  helm:                                     
+    chartsImage: docker.io/biaobes/dm8_single:0.3.0
+  installable:
+    autoInstall: false
+    
+  defaultInstallValues:
+    - enabled: true
